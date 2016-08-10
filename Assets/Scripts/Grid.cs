@@ -31,6 +31,9 @@ public class Grid : MonoBehaviour {
 				grid[x, y] = new Tile(x, y);
 				grid[x, y].gameObject = newTileObject;
 
+				grid[x,y].weight = Random.Range(1,3);
+				grid[x,y].height = Random.Range(0,2);
+
 			}			
 		}
 
@@ -40,5 +43,45 @@ public class Grid : MonoBehaviour {
 		Debug.DrawRay(pos, Vector3.up*2, Color.red, .1f);
 		Debug.DrawRay(grid[(int)(pos.x+0.5f), (int)(pos.z+0.5f)].gameObject.transform.position, Vector3.up*3, Color.green, 0.1f);
 		return grid[(int)(pos.x+0.5f), (int)(pos.z+0.5f)];
+
 	}
+	public List<Tile> GetNeighbours (Tile t) {
+
+		List<Tile> neighbours = new List<Tile>();
+		if (t.x > 0) {
+			neighbours.Add(grid[t.x-1,t.y]);
+			if (t.y < ySize-1)
+				neighbours.Add(grid[t.x-1,t.y+1]);
+			if (t.y > 0)
+				neighbours.Add(grid[t.x-1, t.y-1]);
+		}
+		if (t.x < xSize-1) {
+			neighbours.Add(grid[t.x+1, t.y]);
+			if (t.y < ySize-1)
+				neighbours.Add(grid[t.x+1,t.y+1]);
+			if (t.y > 0)
+				neighbours.Add(grid[t.x+1, t.y-1]);				
+		}
+		if (t.y > 0) neighbours.Add(grid[t.x,t.y-1]);
+		if (t.y < ySize-1) neighbours.Add(grid[t.x,t.y+1]);	
+
+		return neighbours;		
+		
+	}
+
+	public float GetWeight (Tile from, Tile to) {
+
+		float w = 0;
+
+		int dx = Mathf.Abs(from.x-to.x);
+		int dy = Mathf.Abs(from.y-to.y);
+		if (dx+dy > 1) {
+			w+=0.5f;
+		}
+
+		float dh = to.height-from.height;
+
+		return w+to.weight;
+	}
+
 }
