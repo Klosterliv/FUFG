@@ -13,15 +13,12 @@ public class TurnHandler : MonoBehaviour {
     void Start () {
         factionTurn = 0;
         actors = new List<Actor>();
-
         actors[0].Act();
     }
-        
-	
-	
 	
 	// Update is called once per frame
 	void Update () {
+
 	
 	}
 }
