@@ -12,9 +12,7 @@ public class Grid : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
-		Init();
-	
+		Init();	
 	}
 	
 	// Update is called once per frame
@@ -32,14 +30,15 @@ public class Grid : MonoBehaviour {
 				newTileObject.transform.parent = transform;
 				grid[x, y] = new Tile(x, y);
 				grid[x, y].gameObject = newTileObject;
+
 			}			
 		}
-		
+
 	}
 
 	public Tile GetTile (Vector3 pos) {
-		Debug.DrawRay(pos, Vector3.up*2, Color.red, 1f);
-		Debug.DrawRay(grid[(int)pos.x, (int)pos.z].gameObject.transform.position, Vector3.up*3, Color.green, 1.5f);
-		return grid[(int)pos.x, (int)pos.z];
+		Debug.DrawRay(pos, Vector3.up*2, Color.red, .1f);
+		Debug.DrawRay(grid[(int)(pos.x+0.5f), (int)(pos.z+0.5f)].gameObject.transform.position, Vector3.up*3, Color.green, 0.1f);
+		return grid[(int)(pos.x+0.5f), (int)(pos.z+0.5f)];
 	}
 }

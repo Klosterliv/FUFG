@@ -3,6 +3,7 @@ using System.Collections;
 
 public class MouseInput : MonoBehaviour {
 
+
 	public LayerMask mouseLayer;
 
 	// Use this for initialization
