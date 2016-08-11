@@ -4,7 +4,7 @@ using System.Collections;
 public class Effect : Actor
 {
     float lifeTime;
-    float damage;
+    //float damage;
     public override void Act()
     {
         //ApplyDamage

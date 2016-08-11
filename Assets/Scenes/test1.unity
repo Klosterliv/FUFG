@@ -100,12 +100,12 @@ GameObject:
   - 4: {fileID: 185135440}
   - 114: {fileID: 185135439}
   m_Layer: 0
-  m_Name: SadCamper
+  m_Name: Actor 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &185135439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,6 +119,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   delay: 0.5
   actionDelay: 0.6
+  x: 2
+  y: 5
 --- !u!4 &185135440
 Transform:
   m_ObjectHideFlags: 0
@@ -246,9 +248,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5e31883eafa3bf439d83073a7d4c733, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controlled: {fileID: 0}
   mouseLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  range: 6
 --- !u!4 &430860323
 Transform:
   m_ObjectHideFlags: 0
@@ -277,7 +281,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &461313639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,6 +295,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   delay: 1.2
   actionDelay: 0.55
+  x: 1
+  y: 9
 --- !u!4 &461313640
 Transform:
   m_ObjectHideFlags: 0
@@ -379,7 +385,7 @@ GameObject:
   m_Layer: 0
   m_Name: Unit
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -394,8 +400,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a451f0eba2640ab47af4d867e69cb175, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delay: 0.4
+  delay: 0.3
   actionDelay: 0.4
+  x: 5
+  y: 4
   moveSpeed: 0
   minorActions: 0
   majorActions: 0
@@ -412,6 +420,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 10
+--- !u!1 &793918379
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 793918381}
+  - 114: {fileID: 793918380}
+  m_Layer: 0
+  m_Name: Unit3
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &793918380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 793918379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a451f0eba2640ab47af4d867e69cb175, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  delay: 0.6
+  actionDelay: 0.4
+  x: 10
+  y: 5
+  moveSpeed: 0
+  minorActions: 0
+  majorActions: 0
+--- !u!4 &793918381
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 793918379}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.9270363, y: -8.361992, z: -6.8002405}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 13
 --- !u!1 &1000809131
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,6 +496,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   factionTurn: 0
   timeCounter: 0
+  initCombat: 1
+  combatMode: 0
 --- !u!4 &1000809133
 Transform:
   m_ObjectHideFlags: 0
@@ -464,12 +521,12 @@ GameObject:
   - 4: {fileID: 1208959066}
   - 114: {fileID: 1208959065}
   m_Layer: 0
-  m_Name: ThatCamper
+  m_Name: Actor 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1208959065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -483,6 +540,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   delay: 0.3
   actionDelay: 0.2
+  x: 10
+  y: 10
 --- !u!4 &1208959066
 Transform:
   m_ObjectHideFlags: 0
@@ -506,12 +565,12 @@ GameObject:
   - 4: {fileID: 1209614737}
   - 114: {fileID: 1209614736}
   m_Layer: 0
-  m_Name: NoCamper
+  m_Name: Actor 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1209614736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,6 +584,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   delay: 1
   actionDelay: 0.4
+  x: 7
+  y: 10
 --- !u!4 &1209614737
 Transform:
   m_ObjectHideFlags: 0
@@ -538,6 +599,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
+--- !u!1 &1280350355
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 1280350357}
+  - 114: {fileID: 1280350356}
+  m_Layer: 0
+  m_Name: Unit2
+  m_TagString: Untagged
+  m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1280350356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1280350355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a451f0eba2640ab47af4d867e69cb175, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  delay: 0.45
+  actionDelay: 0.42
+  x: 15
+  y: 1
+  moveSpeed: 0
+  minorActions: 0
+  majorActions: 0
+--- !u!4 &1280350357
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1280350355}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.9270363, y: -8.361992, z: -6.8002405}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 12
 --- !u!1 &1430664727
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,12 +656,12 @@ GameObject:
   - 4: {fileID: 1430664729}
   - 114: {fileID: 1430664728}
   m_Layer: 0
-  m_Name: HappyCamper
+  m_Name: Actor 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1430664728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -567,6 +675,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   delay: 0.7
   actionDelay: 0.3
+  x: 1
+  y: 1
 --- !u!4 &1430664729
 Transform:
   m_ObjectHideFlags: 0

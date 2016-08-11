@@ -6,7 +6,6 @@ using System.Linq;
 public class TurnHandler : MonoBehaviour {
 
     List<Actor> actors;
-    Actor curActor;
     public int factionTurn;
     public float timeCounter = 0;
     public bool initCombat = true; //Switch to false after implementation of exploration/non-combat mode (Optional stuff)

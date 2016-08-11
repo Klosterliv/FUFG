@@ -11,7 +11,7 @@ public class Grid : MonoBehaviour {
 	public GameObject gridObject;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		Init();	
 	}
 	

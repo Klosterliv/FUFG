@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class MouseInput : MonoBehaviour {
 
-	Unit controlled;
+	public Unit controlled;
 	public LayerMask mouseLayer;
 	public Tile hoverOver;
 
@@ -12,6 +12,17 @@ public class MouseInput : MonoBehaviour {
 	float[,] wts;
 
 	public int range = 6;
+
+    public static MouseInput instance;
+
+
+    void Awake() {
+        if (instance == null) {
+            DontDestroyOnLoad(gameObject);
+            instance = this as MouseInput;
+        }            
+        else Destroy(gameObject);
+    }
 
 	// Use this for initialization
 	void Start () {
@@ -27,10 +38,9 @@ public class MouseInput : MonoBehaviour {
 
 				Grid grid = hit.transform.parent.GetComponent<Grid>();
 				Tile t = grid.GetTile(hit.point);
-				Debug.Log(t.x+":"+t.y);
 
 				if (hoverOver != t) {
-					FindPathing(t,t,grid,range);
+					FindPathing(controlled.tile,t,grid,range);
 					hoverOver = t;
 				}
 				
