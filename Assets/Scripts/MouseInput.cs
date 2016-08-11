@@ -15,6 +15,8 @@ public class MouseInput : MonoBehaviour {
 
     public static MouseInput instance;
 
+	List<Tile> route;
+
 
     void Awake() {
         if (instance == null) {
@@ -26,6 +28,8 @@ public class MouseInput : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+		route = new List<Tile>();
 	
 	}
 	
@@ -41,14 +45,15 @@ public class MouseInput : MonoBehaviour {
 
 				if (hoverOver != t) {
 					FindPathing(controlled.tile,t,grid,range);
+					route = FindRoute(t,controlled.tile,grid);
 					hoverOver = t;
 				}
-				
 			}
 		}
-		hoverOver = null;
+		else hoverOver = null;
 
 		if (wts != null) DrawWeights();
+		DrawRoute();
 	}
 	void DrawWeights () {
 		Vector3 offset = new Vector3(-0.5f,1.1f,-0.5f);
@@ -59,6 +64,12 @@ public class MouseInput : MonoBehaviour {
 			}
 		}
 
+	}
+	void DrawRoute () {
+		Debug.Log(route.Count);
+		for (int i = 0; i < route.Count-1; i++) {
+			Debug.DrawLine(new Vector3(route[i].x, 1.1f, route[i].y), new Vector3(route[i+1].x, 1.1f, route[i+1].y), Color.blue);
+		}
 	}
 
 
@@ -104,6 +115,43 @@ public class MouseInput : MonoBehaviour {
 		}
 		wts = weights;
 			
+
+	}
+
+	List<Tile> FindRoute (Tile target, Tile start, Grid grid) {
+
+   		List<Tile> newRoute = new List<Tile>();
+
+		if (wts[target.x,target.y] > range) {
+			newRoute.Add(start);
+			return newRoute;
+		}
+
+		newRoute.Add(target);
+
+		bool found = false;
+
+		int iterator = 0;
+		while (!found) {
+			iterator++;
+			if (iterator > 9999) break;
+
+			List<Tile> neighbours = grid.GetNeighbours(newRoute[newRoute.Count-1]);
+			float bestW = 99999;
+			Tile bestTile = start;
+			foreach (Tile n in neighbours) {
+				if (n==start) {
+					found = true;
+					newRoute.Add(n);
+				}
+				if (wts[n.x,n.y] < bestW) {
+					bestW = wts[n.x,n.y];
+					bestTile = n;
+				}
+			}
+			newRoute.Add(bestTile);
+		}
+		return newRoute;
 
 	}
 
