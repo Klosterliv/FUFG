@@ -42,7 +42,6 @@ public class TurnHandler : MonoBehaviour {
     }
     void DebugCheck()
     {
-
         for (int i = 0; i < actors.Count; i++)
         {
             Debug.Log("Actorlist: " + actors[i] + "Delay = " + actors[i].delay);

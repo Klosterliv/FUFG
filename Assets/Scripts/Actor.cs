@@ -8,16 +8,12 @@ public class Actor : MonoBehaviour
     public Tile tile;
 
     public int x, y;
-
     void Start()
     {
         tile = FindObjectOfType<Grid>().grid[x, y];
-        //Debug.Log(FindObjectOfType<Grid>().grid);
     }
     public virtual void Act() {
         Debug.Log("Actor doing Actor things");
         delay = actionDelay;
     }
-
-
 }
