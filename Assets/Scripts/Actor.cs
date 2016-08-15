@@ -11,6 +11,7 @@ public class Actor : MonoBehaviour
     void Start()
     {
         tile = FindObjectOfType<Grid>().grid[x, y];
+		gameObject.transform.position = tile.gameObject.transform.position;
     }
     public virtual void Act() {
         Debug.Log("Actor doing Actor things");

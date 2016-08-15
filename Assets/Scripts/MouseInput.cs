@@ -18,6 +18,14 @@ public class MouseInput : MonoBehaviour {
 	List<Tile> route;
 
 
+	// unit move destination order in route chain
+	int moveOrder = 0;
+	bool unitMoving = false;
+	List<Tile> moveRoute;
+	float moveT = 0;
+	public float animSpeed = 10;
+
+
     void Awake() {
         if (instance == null) {
             DontDestroyOnLoad(gameObject);
@@ -30,48 +38,77 @@ public class MouseInput : MonoBehaviour {
 	void Start () {
 
 		route = new List<Tile>();
+		moveRoute = new List<Tile>();
 	
+	}
+
+	void Click() {
+
+		if (route.Count > 1) {
+			moveRoute = route;
+			unitMoving = true;
+			moveOrder = moveRoute.Count-1;
+		}
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
 		RaycastHit hit;
-		if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 99999, mouseLayer)) {
-			if (hit.transform.parent.name == "Grid") {
+		if (!unitMoving) {
+			if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 99999, mouseLayer)) {
+				if (hit.transform.parent.name == "Grid") {
 
-				Grid grid = hit.transform.parent.GetComponent<Grid>();
-				Tile t = grid.GetTile(hit.point);
+					Grid grid = hit.transform.parent.GetComponent<Grid>();
+					Tile t = grid.GetTile(hit.point);
 
-				if (hoverOver != t) {
-					FindPathing(controlled.tile,t,grid,range);
-					route = FindRoute(t,controlled.tile,grid);
-					hoverOver = t;
+					if (hoverOver != t) {
+						hoverOver = t;
+						if (controlled != null) {
+							FindPathing(controlled.tile,t,grid,range);
+							route = FindRoute(t,controlled.tile,grid);
+						}
+					}
+					if (Input.GetMouseButtonDown(0)) {
+						Click();
+					}
 				}
 			}
-		}
-		else hoverOver = null;
+			else hoverOver = null;
 
-		if (wts != null) DrawWeights();
-		DrawRoute();
+			if (wts != null) DrawWeights();
+			DrawRoute();
+		}
+		else {
+			MoveUnit();
+		}
+
 	}
 	void DrawWeights () {
-		Vector3 offset = new Vector3(-0.5f,1.1f,-0.5f);
+		Vector3 offset = new Vector3(-0.5f,.5f,-0.5f);
 		for (int x = 0; x < wts.GetLength(0); x++) {
 			for (int y = 0; y < wts.GetLength(1); y++) {
-				Debug.DrawLine(new Vector3(x,0,y)+offset,new Vector3(x+1,0,y+1)+offset, Color.Lerp(Color.green,Color.red,(int)wts[x,y]/range));
-				Debug.DrawLine(new Vector3(x,0,y+1)+offset,new Vector3(x+1,0,y)+offset, Color.Lerp(Color.green,Color.red,(int)wts[x,y]/range));
+				float clerp = (int)(wts[x,y]/(range+1));
+
+				Debug.DrawLine(new Vector3(x+.1f,0,y+.1f)+offset,new Vector3(x+.1f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+				Debug.DrawLine(new Vector3(x+.9f,0,y+.1f)+offset,new Vector3(x+.9f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+				Debug.DrawLine(new Vector3(x+.1f,0,y+.1f)+offset,new Vector3(x+.9f,0,y+.1f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+				Debug.DrawLine(new Vector3(x+.1f,0,y+.9f)+offset,new Vector3(x+.9f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+
 			}
 		}
 
 	}
 	void DrawRoute () {
-		Debug.Log(route.Count);
+		//Debug.Log(route.Count);
+		if (route.Count > 0) {
+			//Debug.Log(wts[route[0].x,route[0].y]);
+		}			
 		for (int i = 0; i < route.Count-1; i++) {
-			Debug.DrawLine(new Vector3(route[i].x, 1.1f, route[i].y), new Vector3(route[i+1].x, 1.1f, route[i+1].y), Color.blue);
+			Debug.DrawLine(new Vector3(route[i].x, .5f, route[i].y), new Vector3(route[i+1].x, .5f, route[i+1].y), Color.blue);
 		}
 	}
-
 
 
 	void FindPathing (Tile start, Tile end, Grid grid, int range) {
@@ -153,6 +190,37 @@ public class MouseInput : MonoBehaviour {
 		}
 		return newRoute;
 
+	}
+
+	void MoveUnit() {
+		Vector3 posFrom = controlled.gameObject.transform.position;
+		Vector3 posTo = route[moveOrder].gameObject.transform.position;
+
+		controlled.gameObject.transform.position = Vector3.Lerp(posFrom, posTo, moveT);
+		if (moveT > .8f) {			
+			if (moveOrder > 0) {
+				moveOrder--;
+				moveT = 0;
+			}
+			else if (moveT >= 1) {
+				MoveComplete ();
+			}
+		}
+		moveT += (Time.deltaTime*animSpeed);
+
+	}
+	void MoveComplete () {
+
+		Debug.Log("moved");
+		controlled.Moved(wts[route[0].x,route[0].y], route[0]);
+		unitMoving = false;
+		hoverOver = null;
+		TurnHandler.instance.TimeStep();
+		
+	}
+	public void SetControlled(Unit unit) {
+		controlled = unit;
+		range = unit.moveSpeed;
 	}
 
 }

@@ -10,6 +10,17 @@ public class TurnHandler : MonoBehaviour {
     public float timeCounter = 0;
     public bool initCombat = true; //Switch to false after implementation of exploration/non-combat mode (Optional stuff)
     public bool combatMode = false;
+
+
+	public static TurnHandler instance;
+	void Awake() {
+		if (instance == null) {
+			DontDestroyOnLoad(gameObject);
+			instance = this as TurnHandler;
+		}            
+		else Destroy(gameObject);
+	}
+
     
     // Use this for initialization
     void Start () {
@@ -26,18 +37,7 @@ public class TurnHandler : MonoBehaviour {
     {
         if (Input.GetKeyUp("b") == true)
         {
-            if (combatMode)
-            {
-                float timestep = actors[0].delay;
-                foreach (Actor a in actors)
-                {
-                    a.delay -= timestep;
-                }
-                Debug.Log("\n Object " + actors[0].name + " acting");
-                actors[0].Act();
-                actors = actors.OrderBy(d => d.delay).ToList(); //Listsortering med Linq
-                DebugCheck();
-            }
+			TimeStep();
         }
     }
     void DebugCheck()
@@ -60,4 +60,21 @@ public class TurnHandler : MonoBehaviour {
             DebugCheck();
         }
     }
+
+	public void TimeStep () {
+		if (combatMode)
+		{
+			actors = actors.OrderBy(d => d.delay).ToList(); //Listsortering med Linq
+			float timestep = actors[0].delay;
+			foreach (Actor a in actors)
+			{
+				a.delay -= timestep;
+			}
+			Debug.Log("\n Object " + actors[0].name + " acting");
+
+			actors[0].Act();
+			DebugCheck();
+		}
+	}
+		
 }

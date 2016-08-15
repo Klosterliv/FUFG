@@ -12,7 +12,11 @@ public class Unit : Actor
     {
         //DoAction (minorAction, majorAction etc.)
         Debug.Log("Unit -> Do Action");
-        MouseInput.instance.controlled = this;
-        delay = actionDelay; //SetNewDelay
+		MouseInput.instance.SetControlled(this);
+        //delay = actionDelay; //SetNewDelay
     }
+	public void Moved (float weight, Tile to) {
+		delay = actionDelay;
+		tile = to;
+	}
 }
