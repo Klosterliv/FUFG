@@ -81,6 +81,8 @@ public class Grid : MonoBehaviour {
 
 		float dh = to.height-from.height;
 
+		if (to.occupied) return 999999;
+
 		return w+to.weight;
 	}
 

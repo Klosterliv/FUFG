@@ -4,6 +4,11 @@ using System.Collections.Generic;
 
 public class MouseInput : MonoBehaviour {
 
+	public GameObject moveOutlineObject;
+	List<GameObject> moveOutline;
+	LineRenderer routeRenderer;
+	GameObject mouseOverObject;
+
 	public Unit controlled;
 	public LayerMask mouseLayer;
 	public Tile hoverOver;
@@ -39,7 +44,13 @@ public class MouseInput : MonoBehaviour {
 
 		route = new List<Tile>();
 		moveRoute = new List<Tile>();
-	
+		moveOutline = new List<GameObject>();
+		routeRenderer = GetComponent<LineRenderer>();
+
+		mouseOverObject = (GameObject) Instantiate(moveOutlineObject, transform.position, Quaternion.identity);
+		mouseOverObject.GetComponentInChildren<Renderer>().material.SetColor("_TintColor",Color.blue);
+		mouseOverObject.SetActive(false);
+
 	}
 
 	void Click() {
@@ -68,6 +79,8 @@ public class MouseInput : MonoBehaviour {
 						if (controlled != null) {
 							FindPathing(controlled.tile,t,grid,range);
 							route = FindRoute(t,controlled.tile,grid);
+							DrawOutline();
+							DrawMouseOver();
 						}
 					}
 					if (Input.GetMouseButtonDown(0)) {
@@ -75,13 +88,18 @@ public class MouseInput : MonoBehaviour {
 					}
 				}
 			}
-			else hoverOver = null;
+			else { 
+				hoverOver = null;
+				mouseOverObject.SetActive(false);
+			}
 
 			if (wts != null) DrawWeights();
 			DrawRoute();
 		}
 		else {
 			MoveUnit();
+			ClearRoute();
+			ClearOutline();
 		}
 
 	}
@@ -104,10 +122,36 @@ public class MouseInput : MonoBehaviour {
 		//Debug.Log(route.Count);
 		if (route.Count > 0) {
 			//Debug.Log(wts[route[0].x,route[0].y]);
-		}			
-		for (int i = 0; i < route.Count-1; i++) {
-			Debug.DrawLine(new Vector3(route[i].x, .5f, route[i].y), new Vector3(route[i+1].x, .5f, route[i+1].y), Color.blue);
 		}
+		ClearRoute();
+		routeRenderer.SetVertexCount(route.Count);
+		for (int i = 0; i < route.Count; i++) {
+			//Debug.DrawLine(new Vector3(route[i].x, .5f, route[i].y), new Vector3(route[i+1].x, .5f, route[i+1].y), Color.blue);
+			routeRenderer.SetPosition(i, new Vector3(route[i].x, .6f, route[i].y));
+			//routeRenderer.SetPosition(i+1, new Vector3(route[i+1].x, .5f, route[i+1].y));
+		}
+	}
+	void DrawOutline () {
+		Debug.Log("new outline");
+		ClearOutline();
+		for (int x = 0; x < wts.GetLength(0); x++) {
+			for (int y = 0; y < wts.GetLength(1); y++) {
+				if (wts[x,y] <= range) {
+					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
+					moveOutline.Add(obj);
+				}
+			}
+		}
+	}
+	void DrawMouseOver () {
+		mouseOverObject.transform.position = hoverOver.gameObject.transform.position + Vector3.up*0.7f;
+		mouseOverObject.SetActive(true);
+	}
+	void ClearRoute () {
+		routeRenderer.SetVertexCount(0);
+	}
+	void ClearOutline () {
+		moveOutline.ForEach(Destroy);
 	}
 
 

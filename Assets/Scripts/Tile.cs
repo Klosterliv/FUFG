@@ -9,6 +9,9 @@ public class Tile {
 	public int height = 0;
 	public int weight = 1;
 
+	public bool occupied = false;
+	public Unit occupier = null;
+
 
 	public Tile(int x, int y) {
 		this.x = x;

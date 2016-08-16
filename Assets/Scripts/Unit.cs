@@ -17,6 +17,12 @@ public class Unit : Actor
     }
 	public void Moved (float weight, Tile to) {
 		delay = actionDelay;
+		tile.occupied = false;
+		tile.occupier = null;
+
+		to.occupied = true;
+		to.occupier = this;
 		tile = to;
+
 	}
 }
