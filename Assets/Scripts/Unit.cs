@@ -16,6 +16,7 @@ public class Unit : Actor
         //delay = actionDelay; //SetNewDelay
     }
 	public void Moved (float weight, Tile to) {
+		
 		delay = actionDelay;
 		tile.occupied = false;
 		tile.occupier = null;

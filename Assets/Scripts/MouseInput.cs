@@ -31,6 +31,9 @@ public class MouseInput : MonoBehaviour {
 	public float animSpeed = 10;
 
 
+	bool mouseHit = false;
+
+
     void Awake() {
         if (instance == null) {
             DontDestroyOnLoad(gameObject);
@@ -53,6 +56,37 @@ public class MouseInput : MonoBehaviour {
 
 	}
 
+	void MouseRay() {
+
+		RaycastHit hit;
+		if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 99999, mouseLayer)) {
+			if (hit.transform.parent.name == "Grid") {
+
+				mouseHit = true;
+
+				Grid grid = hit.transform.parent.GetComponent<Grid>();
+				Tile t = grid.GetTile(hit.point);
+
+				if (hoverOver != t) {
+					hoverOver = t;
+					if (controlled != null) {
+						FindPathing(controlled.tile,t,grid,range);
+						route = FindRoute(t,controlled.tile,grid);
+						DrawOutline();
+						DrawMouseOver();
+					}
+				}
+			}
+			else { 
+				hoverOver = null;
+				mouseOverObject.SetActive(false);
+				mouseHit = false;
+			}
+		}
+
+		
+	}
+
 	void Click() {
 
 		if (route.Count > 1) {
@@ -66,6 +100,36 @@ public class MouseInput : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+		// (sketch....)
+
+		// controlled 
+		// raycast - find hoverover
+		// click to move
+		// when moved - click to turn
+		// ...
+		// next turn
+		if (unitMoving) {
+			MoveUnit();
+			ClearRoute();
+			ClearOutline();
+			return;
+		}
+
+		MouseRay();
+
+		if (mouseHit) {
+			if (Input.GetMouseButtonDown(0)) {
+				Click();
+			}
+			if (wts != null) DrawWeights();
+			DrawRoute();
+			
+		}
+
+
+
+
+		/*
 		RaycastHit hit;
 		if (!unitMoving) {
 			if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 99999, mouseLayer)) {
@@ -101,7 +165,7 @@ public class MouseInput : MonoBehaviour {
 			ClearRoute();
 			ClearOutline();
 		}
-
+*/
 	}
 	void DrawWeights () {
 		Vector3 offset = new Vector3(-0.5f,.5f,-0.5f);
