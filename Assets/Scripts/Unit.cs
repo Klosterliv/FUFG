@@ -7,6 +7,7 @@ public class Unit : Actor
     public int moveSpeed;
     public int minorActions;
     public int majorActions;
+	public Vector3 facing;
 
     public override void Act()
     {
@@ -25,5 +26,10 @@ public class Unit : Actor
 		to.occupier = this;
 		tile = to;
 
+	}
+	public void Orient (Vector3 orientation) {
+		facing = orientation;
+		Vector3 lookTarget = transform.position + facing;
+		transform.LookAt(lookTarget);
 	}
 }

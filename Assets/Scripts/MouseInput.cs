@@ -30,6 +30,13 @@ public class MouseInput : MonoBehaviour {
 	float moveT = 0;
 	public float animSpeed = 10;
 
+	Ctrl ctrl;
+
+	public enum Ctrl {
+		Move,
+		Orient,
+	};
+
 
 	bool mouseHit = false;
 
@@ -89,16 +96,58 @@ public class MouseInput : MonoBehaviour {
 
 	void Click() {
 
-		if (route.Count > 1) {
-			moveRoute = route;
-			unitMoving = true;
-			moveOrder = moveRoute.Count-1;
+		switch (ctrl) {
+		case Ctrl.Move:
+			if (route.Count > 1) {
+				moveRoute = route;
+				unitMoving = true;
+				moveOrder = moveRoute.Count-1;
+			}
+			break;
+		case Ctrl.Orient:
+			OrientUnit();
+			break;
 		}
+
+
 
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
+		if (unitMoving) {
+			MoveUnit();
+			ClearRoute();
+			ClearOutline();
+			return;
+		}
+
+
+
+		switch (ctrl) {
+		case Ctrl.Move:
+			MouseRay();
+			if (mouseHit) {
+				if (Input.GetMouseButtonDown(0)) {
+					Click();
+				}
+				if (wts != null) DrawWeights();
+				DrawRoute();
+			}
+			break;
+		case Ctrl.Orient:
+			
+			MouseRay();
+			if (mouseHit) {
+				controlled.Orient(GetOrientation());
+				//GetOrientation();
+				if (Input.GetMouseButtonDown(0)) {
+					Click();
+				}
+			}
+			break;
+		}
 
 		// (sketch....)
 
@@ -108,23 +157,11 @@ public class MouseInput : MonoBehaviour {
 		// when moved - click to turn
 		// ...
 		// next turn
-		if (unitMoving) {
-			MoveUnit();
-			ClearRoute();
-			ClearOutline();
-			return;
-		}
 
-		MouseRay();
 
-		if (mouseHit) {
-			if (Input.GetMouseButtonDown(0)) {
-				Click();
-			}
-			if (wts != null) DrawWeights();
-			DrawRoute();
-			
-		}
+		//MouseRay();
+
+
 
 
 
@@ -196,7 +233,6 @@ public class MouseInput : MonoBehaviour {
 		}
 	}
 	void DrawOutline () {
-		Debug.Log("new outline");
 		ClearOutline();
 		for (int x = 0; x < wts.GetLength(0); x++) {
 			for (int y = 0; y < wts.GetLength(1); y++) {
@@ -323,12 +359,64 @@ public class MouseInput : MonoBehaviour {
 		controlled.Moved(wts[route[0].x,route[0].y], route[0]);
 		unitMoving = false;
 		hoverOver = null;
-		TurnHandler.instance.TimeStep();
+		//TurnHandler.instance.TimeStep();
+		ctrl = Ctrl.Orient;
+
 		
 	}
 	public void SetControlled(Unit unit) {
 		controlled = unit;
 		range = unit.moveSpeed;
+		ctrl = Ctrl.Move;
+	}
+
+	void OrientUnit() {
+		TurnHandler.instance.TimeStep();
+	}
+	Vector3 GetOrientation() {
+
+		Tile ct = controlled.tile;
+
+		Vector3 unitToMouseDir = new Vector3(hoverOver.x-ct.x,0,hoverOver.y-ct.y);
+
+		// vector down to 8dir
+		float angle = Mathf.Atan2( unitToMouseDir.x, unitToMouseDir.z );
+		int octant = Mathf.RoundToInt( 8 * angle / (2*Mathf.PI) + 8 ) % 8;
+
+		Vector3 fDir = Vector3.zero;
+
+		// 8dir into vector
+		switch (octant) {
+		case 0:
+			fDir = new Vector3(0,0,1);
+			break;	
+		case 1:
+			fDir = new Vector3(1,0,1);
+			break;
+		case 2:
+			fDir = new Vector3(1,0,0);
+			break;
+		case 3:
+			fDir = new Vector3(1,0,-1);
+			break;
+		case 4:
+			fDir = new Vector3(0,0,-1);
+			break;
+		case 5:
+			fDir = new Vector3(-1,0,-1);
+			break;
+		case 6:
+			fDir = new Vector3(-1,0,0);
+			break;
+		case 7:
+			fDir = new Vector3(-1,0,1);
+			break;
+
+		}
+
+		Debug.DrawRay(controlled.transform.position, fDir*5, Color.green);
+		return fDir;
+		
 	}
 
 }
