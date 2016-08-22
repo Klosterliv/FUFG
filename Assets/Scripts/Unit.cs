@@ -9,6 +9,9 @@ public class Unit : Actor
     public int majorActions;
 	public Vector3 facing;
 
+	public List<Ability> abilities;
+	public Ability ability;
+
     public override void Act()
     {
         //DoAction (minorAction, majorAction etc.)

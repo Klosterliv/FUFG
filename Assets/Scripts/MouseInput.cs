@@ -76,7 +76,7 @@ public class MouseInput : MonoBehaviour {
 
 				if (hoverOver != t) {
 					hoverOver = t;
-					if (controlled != null) {
+					if (controlled != null && ctrl == Ctrl.Move) {
 						FindPathing(controlled.tile,t,grid,range);
 						route = FindRoute(t,controlled.tile,grid);
 						DrawOutline();
@@ -89,6 +89,11 @@ public class MouseInput : MonoBehaviour {
 				mouseOverObject.SetActive(false);
 				mouseHit = false;
 			}
+		}
+		else { 
+			hoverOver = null;
+			mouseOverObject.SetActive(false);
+			mouseHit = false;
 		}
 
 		
@@ -136,8 +141,7 @@ public class MouseInput : MonoBehaviour {
 				DrawRoute();
 			}
 			break;
-		case Ctrl.Orient:
-			
+		case Ctrl.Orient:			
 			MouseRay();
 			if (mouseHit) {
 				controlled.Orient(GetOrientation());
@@ -355,7 +359,6 @@ public class MouseInput : MonoBehaviour {
 	}
 	void MoveComplete () {
 
-		Debug.Log("moved");
 		controlled.Moved(wts[route[0].x,route[0].y], route[0]);
 		unitMoving = false;
 		hoverOver = null;
@@ -368,9 +371,11 @@ public class MouseInput : MonoBehaviour {
 		controlled = unit;
 		range = unit.moveSpeed;
 		ctrl = Ctrl.Move;
+		UI.instance.UpdateButtons(controlled.abilities);
 	}
 
 	void OrientUnit() {
+		hoverOver = null;
 		TurnHandler.instance.TimeStep();
 	}
 	Vector3 GetOrientation() {
