@@ -8,9 +8,11 @@ public class UI : MonoBehaviour {
 	public RectTransform canvas;
 	public RectTransform actionBar;
 	public RectTransform healthBarParent;
+	public RectTransform turnOrderParent;
 
 	public GameObject buttonPrefab;
 	public GameObject healthBarPrefab;
+	public GameObject turnOrderPrefab;
 
 	public Camera uiCam;
 
@@ -21,6 +23,7 @@ public class UI : MonoBehaviour {
 
 	List<GameObject> actionButtons;
 	List<HealthBar> healthBars;
+	List<TurnOrderIcon> turnOrderIcons;
 
 	void Awake () {
 		if (instance == null) {
@@ -32,17 +35,19 @@ public class UI : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
-		actionButtons = new List<GameObject>();
+		if (actionButtons == null)
+			actionButtons = new List<GameObject>();
 		if (healthBars == null)
 			healthBars = new List<HealthBar>();
-	
+		if (turnOrderIcons == null)
+			turnOrderIcons = new List<TurnOrderIcon>();	
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
 		UpdateHealthBars();
+		UpdateTurnOrder();
 
 
 	
@@ -58,7 +63,7 @@ public class UI : MonoBehaviour {
 		foreach (Ability ability in abilities) {
 			GameObject btn = (GameObject)Instantiate(buttonPrefab, Vector3.zero, Quaternion.identity);
 			Text txt = btn.GetComponentInChildren<Text>();
-			btn.transform.SetParent(actionBar, false);
+			btn.transform.SetParent(actionBar,false);
 			btn.transform.localScale = Vector3.one;
 			btn.transform.rotation = actionBar.rotation;
 			txt.text = ability.name;
@@ -88,6 +93,49 @@ public class UI : MonoBehaviour {
 			rectTransform.anchoredPosition = viewportPoint;
 		}
 		
+	}
+	public void UpdateTurnOrder (List<Actor> units) {
+		//int maxLength = 6;
+		int o = 0;
+		foreach (Unit u in units) {
+
+			// TODO :: All this is crap
+			bool found = false;
+			foreach (TurnOrderIcon icon in turnOrderIcons) {
+
+				if (icon.unit == u) {
+					icon.turn = o;
+					icon.Update();
+					found = true;
+				}
+			}
+			if (!found) {
+				GameObject iconObj = (GameObject) Instantiate(turnOrderPrefab);
+				TurnOrderIcon reqIcon = new TurnOrderIcon(turnOrderParent, iconObj.GetComponent<RectTransform>(), u);
+				reqIcon.icon.SetParent(turnOrderParent, false);
+				turnOrderIcons.Add(reqIcon);
+				reqIcon.turn = o;
+				reqIcon.Update();
+			}
+			o++;
+		}
+	}
+	void UpdateTurnOrder () {
+		foreach (TurnOrderIcon icon in turnOrderIcons) {
+			//icon.icon.position = Vector2.Lerp(icon.icon.position, icon.desiredOffset, Time.deltaTime*15);
+			icon.icon.anchoredPosition = Vector2.Lerp(icon.icon.anchoredPosition, icon.desiredOffset, Time.deltaTime*15);
+			if (icon.turn == 0) {
+				icon.icon.localScale = Vector3.Lerp(icon.icon.localScale, Vector3.one*1.4f, Time.deltaTime*3);
+			}
+			else icon.icon.localScale = Vector3.Lerp(icon.icon.localScale, Vector3.one, Time.deltaTime*3);
+
+			//icon.icon.localPosition = Vector2.Lerp(icon.icon.localPosition, icon.desiredOffset, Time.deltaTime*15);
+			//icon.icon.position = Vector3.zero;
+			//icon.icon.localScale = Vector3.one;
+
+			//icon.icon.sizeDelta = Vector3.one;
+		}
+
 	}
 
 
@@ -126,5 +174,40 @@ public class HealthBar {
 		bar = (Image) canvasObject.GetComponentInChildren<Image>();
 	}
 
+
+}
+
+public class TurnOrderIcon {
+
+	public Unit unit;
+
+	public RectTransform parent;
+	public RectTransform icon;
+	public Text delayText;
+	public Text nameText;
+	public Vector2 desiredOffset;
+	public int turn;
+
+	public TurnOrderIcon (RectTransform parent, RectTransform icon, Unit unit) {
+
+		this.parent = parent;
+		this.icon = icon;
+		this.unit = unit;
+
+		nameText = icon.GetComponentInChildren<Text>();
+		Text[] texts = icon.GetComponentsInChildren<Text>();
+		for (int i = 0; i < texts.Length; i++) {
+			if (texts[i].name == "Name") nameText = texts[i];
+			else if (texts[i].name == "Delay") delayText = texts[i];
+		}
+
+	}
+	public void Update () {
+		delayText.text = unit.delay.ToString("0.00");
+		nameText.text = unit.name;
+
+		desiredOffset = new Vector2(0, turn*55+25);
+
+	}
 
 }

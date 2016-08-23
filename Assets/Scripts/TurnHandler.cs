@@ -74,7 +74,7 @@ public class TurnHandler : MonoBehaviour {
 				a.delay -= timestep;
 			}
 			//Debug.Log("\n Object " + actors[0].name + " acting");
-
+			UI.instance.UpdateTurnOrder(actors);
 			actors[0].Act();
 			//DebugCheck();
 		}
