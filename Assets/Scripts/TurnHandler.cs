@@ -27,7 +27,7 @@ public class TurnHandler : MonoBehaviour {
         factionTurn = 0;
         if (initCombat == true)
         {
-            Debug.Log("Initiating Combat");
+            //Debug.Log("Initiating Combat");
             InitiateCombat();
         }
     }
@@ -57,7 +57,7 @@ public class TurnHandler : MonoBehaviour {
             actors = new List<Actor>();
             actors.AddRange(FindObjectsOfType<Actor>());
             actors = actors.OrderBy(d => d.delay).ToList();
-            DebugCheck();
+            //DebugCheck();
         }
     }
 
@@ -70,10 +70,10 @@ public class TurnHandler : MonoBehaviour {
 			{
 				a.delay -= timestep;
 			}
-			Debug.Log("\n Object " + actors[0].name + " acting");
+			//Debug.Log("\n Object " + actors[0].name + " acting");
 
 			actors[0].Act();
-			DebugCheck();
+			//DebugCheck();
 		}
 	}
 		
