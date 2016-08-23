@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class Unit : Actor
 {
+	public float health = 10;
+	public float maxHealth = 10;
     public int moveSpeed;
     public int minorActions;
     public int majorActions;

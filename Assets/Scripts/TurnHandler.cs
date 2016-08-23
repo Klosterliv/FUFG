@@ -57,6 +57,9 @@ public class TurnHandler : MonoBehaviour {
             actors = new List<Actor>();
             actors.AddRange(FindObjectsOfType<Actor>());
             actors = actors.OrderBy(d => d.delay).ToList();
+			foreach (Unit u in actors) {
+				UI.instance.AddHealthBar(u);
+			}
             DebugCheck();
         }
     }
