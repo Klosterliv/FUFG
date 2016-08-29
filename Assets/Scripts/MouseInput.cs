@@ -543,7 +543,7 @@ public class MouseInput : MonoBehaviour {
 		range = unit.moveSpeed;
 		ctrl = Ctrl.Move;
 		UI.instance.UpdateButtons(controlled.abilities);
-		moves = 1;
+		moves = 2;
 		FindPathing(controlled.tile,controlled.tile.grid,range);
 	}
 
