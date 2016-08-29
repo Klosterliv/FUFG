@@ -28,7 +28,7 @@ public class Grid : MonoBehaviour {
 				GameObject newTileObject = (GameObject) Instantiate(gridObject, transform.position + new Vector3(x,0,y), transform.rotation);
 				newTileObject.name = x+";"+y;
 				newTileObject.transform.parent = transform;
-				grid[x, y] = new Tile(x, y);
+				grid[x, y] = new Tile(this, x, y);
 				grid[x, y].gameObject = newTileObject;
 
 				grid[x,y].weight = Random.Range(1,3);

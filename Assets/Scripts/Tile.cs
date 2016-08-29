@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Tile {
 
+	public Grid grid;
+
 	public GameObject gameObject;
 	public int x, y;
 
@@ -13,7 +15,8 @@ public class Tile {
 	public Unit occupier = null;
 
 
-	public Tile(int x, int y) {
+	public Tile(Grid grid, int x, int y) {
+		this.grid = grid;
 		this.x = x;
 		this.y = y;		
 	}

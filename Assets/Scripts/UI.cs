@@ -9,6 +9,7 @@ public class UI : MonoBehaviour {
 	public RectTransform actionBar;
 	public RectTransform healthBarParent;
 	public RectTransform turnOrderParent;
+	public RectTransform actionPreviewTooltip;
 
 	public GameObject buttonPrefab;
 	public GameObject healthBarPrefab;
@@ -48,8 +49,6 @@ public class UI : MonoBehaviour {
 
 		UpdateHealthBars();
 		UpdateTurnOrder();
-
-
 	
 	}
 
@@ -138,6 +137,11 @@ public class UI : MonoBehaviour {
 
 	}
 
+	public void UpdateActionPreviewTooltip (Vector3 mousePos, string text) {
+		actionPreviewTooltip.anchoredPosition = WorldToCanvasPosition(canvas, Camera.main, mousePos);
+		actionPreviewTooltip.GetComponentInChildren<Text>().text = text;
+	}
+
 
 
 	private Vector2 WorldToCanvasPosition(RectTransform canvas, Camera camera, Vector3 position) {
@@ -173,7 +177,6 @@ public class HealthBar {
 		canvasObject = uiObj;
 		bar = (Image) canvasObject.GetComponentInChildren<Image>();
 	}
-
 
 }
 

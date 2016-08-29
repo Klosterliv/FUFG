@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class MouseInput : MonoBehaviour {
 
@@ -31,14 +32,33 @@ public class MouseInput : MonoBehaviour {
 	public float animSpeed = 10;
 
 	Ctrl ctrl;
+	ActionType action;
+
+	int moves = 0;
 
 	public enum Ctrl {
 		Move,
 		Orient,
 	};
+	public enum MouseOverType {
+		None,
+		Unit,
+		Tile,
+	};
+	public enum ActionType {
+		Rush,
+		Move,
+		Orient,
+		Strike,
+	};
 
-
+	MouseOverType mouseOver = MouseOverType.None;
 	bool mouseHit = false;
+	Vector3 mousePoint = Vector3.zero;
+	Unit hoverUnit;
+	Unit targetUnit;
+
+	string tooltipText = "";
 
 
     void Awake() {
@@ -65,32 +85,90 @@ public class MouseInput : MonoBehaviour {
 
 	void MouseRay() {
 
+		if (EventSystem.current.IsPointerOverGameObject()) {
+			mouseHit = false;
+			return;
+		}
+
 		RaycastHit hit;
 		if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 99999, mouseLayer)) {
-			if (hit.transform.parent.name == "Grid") {
 
-				mouseHit = true;
+			string hitTag = hit.collider.tag;
 
-				Grid grid = hit.transform.parent.GetComponent<Grid>();
-				Tile t = grid.GetTile(hit.point);
+			switch (hitTag) {
 
-				if (hoverOver != t) {
-					hoverOver = t;
-					if (controlled != null && ctrl == Ctrl.Move) {
-						FindPathing(controlled.tile,t,grid,range);
-						route = FindRoute(t,controlled.tile,grid);
-						DrawOutline();
-						DrawMouseOver();
+			case "Unit":
+				mouseOver = MouseOverType.Unit;
+				break;
+			case "Tile":
+				mouseOver = MouseOverType.Tile;
+				break;
+			default: 
+				mouseOver = MouseOverType.None;
+				break;
+			}
+
+
+
+			switch (mouseOver) {
+
+			case MouseOverType.Unit: 
+				{
+					mouseHit = true;
+					hoverUnit = hit.transform.GetComponentInParent<Unit>();
+					hoverOver = hoverUnit.tile;
+					if (hoverUnit != controlled) {
+						Tile closest = FindClosestAdjacent(hoverUnit.tile);
+						if (closest != null) {
+							if (wts[closest.x,closest.y] > 0 && moves > 1) {
+								route = FindRoute(closest, controlled.tile, closest.grid);
+								tooltipText = "Rush: "+wts[closest.x,closest.y];
+							}
+							else if (closest == controlled.tile) {
+								tooltipText = "Strike";
+							}
+						}
 					}
+					break;
 				}
+
+
+			case MouseOverType.Tile:
+				{
+					mouseHit = true;
+
+					Grid grid = hit.transform.parent.GetComponent<Grid>();
+					Tile t = grid.GetTile(hit.point);
+
+					if (hoverOver != t) {
+						hoverOver = t;
+						if (controlled != null && ctrl == Ctrl.Move) {
+							//TODO:: THIS IS SHIT WTF
+							//FindPathing(controlled.tile,grid,range);
+							route = FindRoute(t,controlled.tile,grid);
+							DrawOutline();
+							DrawMouseOver();
+						}
+					}
+					break;
+				}
+					
+
+			case MouseOverType.None:
+				{
+					hoverOver = null;
+					mouseOverObject.SetActive(false);
+					mouseHit = false;
+					break;
+				}
+
 			}
-			else { 
-				hoverOver = null;
-				mouseOverObject.SetActive(false);
-				mouseHit = false;
-			}
+				
+			mousePoint = hit.point;
+
 		}
 		else { 
+			mouseOver = MouseOverType.None;
 			hoverOver = null;
 			mouseOverObject.SetActive(false);
 			mouseHit = false;
@@ -104,12 +182,49 @@ public class MouseInput : MonoBehaviour {
 		switch (ctrl) {
 		case Ctrl.Move:
 			if (route.Count > 1) {
+				if(mouseOver == MouseOverType.Unit) {
+					//TODO:: bad!! ugly!! YUCK
+					//List<Tile> nbrs = hoverUnit.tile.grid.GetNeighbours(hoverUnit.tile);
+					//if (nbrs.Contains(controlled.tile)) {
+						// STRIKE!!!
+					//	controlled.Orient(new Vector3(targetUnit.tile.x-controlled.tile.x, 0, targetUnit.tile.y-controlled.tile.y));
+					//	targetUnit.Strike(controlled.tile, controlled.strength*1.2f, controlled.strength*0.5f);
+					//	moves-=1;
+					//}
+
+					action = ActionType.Rush;
+					targetUnit = hoverUnit;
+				}
+				else action = ActionType.Move;
+
+				Debug.Log(wts[route[0].x,route[0].y]);
+				if (wts[route[0].x,route[0].y] > range) moves-=2;
+				else moves-=1;
 				moveRoute = route;
 				unitMoving = true;
 				moveOrder = moveRoute.Count-1;
 			}
 			break;
 		case Ctrl.Orient:
+
+			if (mouseOver == MouseOverType.Unit) {
+
+				//TODO : bad.
+				List<Tile> nbrs = hoverUnit.tile.grid.GetNeighbours(hoverUnit.tile);
+				if (!nbrs.Contains(controlled.tile)) return;
+				// ................... //
+
+				// ................... //
+				action = ActionType.Strike;
+				targetUnit = hoverUnit;
+
+				controlled.Orient(new Vector3(targetUnit.tile.x-controlled.tile.x, 0, targetUnit.tile.y-controlled.tile.y));
+				targetUnit.Strike(controlled.tile, controlled.strength*1.2f, controlled.strength*0.5f);
+				moves-=1;
+
+			}
+			else action = ActionType.Orient;
+			
 			OrientUnit();
 			break;
 		}
@@ -123,12 +238,10 @@ public class MouseInput : MonoBehaviour {
 
 		if (unitMoving) {
 			MoveUnit();
-			ClearRoute();
+			//ClearRoute();
 			ClearOutline();
 			return;
 		}
-
-
 
 		switch (ctrl) {
 		case Ctrl.Move:
@@ -141,17 +254,23 @@ public class MouseInput : MonoBehaviour {
 				DrawRoute();
 			}
 			break;
-		case Ctrl.Orient:			
+		case Ctrl.Orient:
+			tooltipText = "Orient";
 			MouseRay();
 			if (mouseHit) {
+				//tooltipText = "Orient";
 				controlled.Orient(GetOrientation());
 				//GetOrientation();
 				if (Input.GetMouseButtonDown(0)) {
 					Click();
 				}
 			}
+			else tooltipText = "";
 			break;
 		}
+
+		UI.instance.UpdateActionPreviewTooltip(mousePoint, tooltipText);
+
 
 		// (sketch....)
 
@@ -244,6 +363,11 @@ public class MouseInput : MonoBehaviour {
 					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
 					moveOutline.Add(obj);
 				}
+				else if (moves>1 && wts[x,y] <= range*2) {
+					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
+					obj.GetComponentInChildren<Renderer>().material.SetColor("_TintColor",Color.yellow);
+					moveOutline.Add(obj);					
+				}
 			}
 		}
 	}
@@ -258,10 +382,25 @@ public class MouseInput : MonoBehaviour {
 		moveOutline.ForEach(Destroy);
 	}
 
+	Tile FindClosestAdjacent(Tile tile) {
 
-	void FindPathing (Tile start, Tile end, Grid grid, int range) {
+		List<Tile> neighbours = tile.grid.GetNeighbours(tile);
+		float w = 99999;
+		Tile closest = null;
 
+		foreach (Tile n in neighbours) {
+			if (wts[n.x,n.y] < w) {
+				closest = n;
+				w=wts[n.x,n.y];
+			}				
+		}
+		return closest;
+
+	}
+
+	void FindPathing (Tile start, Grid grid, int range) {
 		int iterator = 0;
+		if(moves>1) range*=2;
 
 		float[,] weights = new float[grid.xSize,grid.ySize];
 		for (int x = 0; x < weights.GetLength(0); x++) {
@@ -307,10 +446,19 @@ public class MouseInput : MonoBehaviour {
 
    		List<Tile> newRoute = new List<Tile>();
 
-		if (wts[target.x,target.y] > range) {
+		int mRange = range;
+		if (moves>1) {
+			mRange *= 2;
+
+		}
+		if (wts[target.x,target.y] > mRange) {
 			newRoute.Add(start);
+			tooltipText = "...";
 			return newRoute;
 		}
+
+		if (wts[target.x,target.y] > range) tooltipText = "Sprint: "+wts[target.x,target.y];
+		else tooltipText = "Move: "+wts[target.x,target.y];
 
 		newRoute.Add(target);
 
@@ -327,6 +475,7 @@ public class MouseInput : MonoBehaviour {
 			foreach (Tile n in neighbours) {
 				if (n==start) {
 					found = true;
+					//Debug.Log("i:"+iterator);
 					newRoute.Add(n);
 				}
 				if (wts[n.x,n.y] < bestW) {
@@ -345,12 +494,16 @@ public class MouseInput : MonoBehaviour {
 		Vector3 posTo = route[moveOrder].gameObject.transform.position;
 
 		controlled.gameObject.transform.position = Vector3.Lerp(posFrom, posTo, moveT);
+		//controlled.Orient(new Vector3(route[route.Count-2].x-route[route.Count-1].x,0, route[route.Count-1].y-route[route.Count-2].y));
+		//controlled.Orient(new Vector3(route[moveOrder-1].x-route[moveOrder].x,0, route[moveOrder-1].y-route[moveOrder].y));
 		if (moveT > .8f) {			
 			if (moveOrder > 0) {
+				controlled.Orient(new Vector3(route[moveOrder-1].x-route[moveOrder].x,0, route[moveOrder-1].y-route[moveOrder].y));
 				moveOrder--;
 				moveT = 0;
 			}
 			else if (moveT >= 1) {
+				controlled.Orient(new Vector3(route[0].x-route[1].x, 0, route[0].y-route[1].y));
 				MoveComplete ();
 			}
 		}
@@ -359,11 +512,29 @@ public class MouseInput : MonoBehaviour {
 	}
 	void MoveComplete () {
 
+		ClearRoute();
+		ClearOutline();
+
 		controlled.Moved(wts[route[0].x,route[0].y], route[0]);
 		unitMoving = false;
 		hoverOver = null;
 		//TurnHandler.instance.TimeStep();
-		ctrl = Ctrl.Orient;
+
+		switch (action) {
+		case ActionType.Rush:
+			controlled.Orient(new Vector3(targetUnit.tile.x-controlled.tile.x, 0, targetUnit.tile.y-controlled.tile.y));
+			targetUnit.Strike(controlled.tile, controlled.strength*1.2f, controlled.strength*0.5f);
+			moves-=1;
+			break;
+		}
+
+		if (moves > 0) {
+			FindPathing(controlled.tile,controlled.tile.grid,range);
+			ctrl = Ctrl.Orient;
+		}
+		else {
+			Skip();
+		}
 
 		
 	}
@@ -372,11 +543,12 @@ public class MouseInput : MonoBehaviour {
 		range = unit.moveSpeed;
 		ctrl = Ctrl.Move;
 		UI.instance.UpdateButtons(controlled.abilities);
+		moves = 1;
+		FindPathing(controlled.tile,controlled.tile.grid,range);
 	}
 
 	void OrientUnit() {
-		hoverOver = null;
-		TurnHandler.instance.TimeStep();
+		Skip();
 	}
 	Vector3 GetOrientation() {
 
@@ -422,6 +594,10 @@ public class MouseInput : MonoBehaviour {
 		Debug.DrawRay(controlled.transform.position, fDir*5, Color.green);
 		return fDir;
 		
+	}
+	void Skip () {
+		hoverOver = null;
+		TurnHandler.instance.TimeStep();
 	}
 
 }
