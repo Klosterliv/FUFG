@@ -29,6 +29,8 @@ public class TurnHandler : MonoBehaviour {
         {
             //Debug.Log("Initiating Combat");
             InitiateCombat();
+			TimeStep();
+
         }
     }
 
@@ -56,9 +58,14 @@ public class TurnHandler : MonoBehaviour {
             initCombat = false;
             actors = new List<Actor>();
             actors.AddRange(FindObjectsOfType<Actor>());
+			for (int i = 0; i < actors.Count; i++) {
+				if (!actors[i].timeStep) actors.RemoveAt(i);
+			}
+
             actors = actors.OrderBy(d => d.delay).ToList();
-			foreach (Unit u in actors) {
-				UI.instance.AddHealthBar(u);
+			foreach (Actor a in actors) {
+				if (a.GetType() == typeof(Unit))
+					UI.instance.AddHealthBar(a as Unit);
 			}
             //DebugCheck();
         }

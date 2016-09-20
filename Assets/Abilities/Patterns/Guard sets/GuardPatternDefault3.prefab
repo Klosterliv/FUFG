@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1000011140769148}
+  m_IsPrefabParent: 1
+--- !u!1 &1000011140769148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 4000012510484194}
+  - 114: {fileID: 114000014111460476}
+  m_Layer: 0
+  m_Name: GuardPatternDefault3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4000012510484194
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011140769148}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.2703705, y: 1.4886762, z: 12.300807}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!114 &114000014111460476
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011140769148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3afbe5324babdb14d9628cdbb9aca0dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  up: {fileID: 11400000, guid: f7a30c14b8a09944cb9dbafccaf7f559, type: 2}
+  upRight: {fileID: 11400000, guid: d9426d32284a8404a886948d2a49a218, type: 2}
+  right: {fileID: 11400000, guid: 3407010b497b090489f5dbc1d2f1478e, type: 2}
+  downRight: {fileID: 11400000, guid: 16b962a445c05184dad463349eaebbaa, type: 2}
+  down: {fileID: 11400000, guid: 7b764af1d70e4bf49a8a42ba97fd8d6f, type: 2}
+  downLeft: {fileID: 11400000, guid: 3e91351028fc28940b4d91883bacafe1, type: 2}
+  left: {fileID: 11400000, guid: 1c616cbf942718441a96df667ae40a58, type: 2}
+  upLeft: {fileID: 11400000, guid: 63b655c7c08bdc04792fd20e935955e2, type: 2}

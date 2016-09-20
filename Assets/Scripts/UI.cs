@@ -32,16 +32,18 @@ public class UI : MonoBehaviour {
 			DontDestroyOnLoad(gameObject);
 		}			
 		else Destroy(gameObject);
-	}
 
-	// Use this for initialization
-	void Start () {
 		if (actionButtons == null)
 			actionButtons = new List<GameObject>();
 		if (healthBars == null)
 			healthBars = new List<HealthBar>();
 		if (turnOrderIcons == null)
 			turnOrderIcons = new List<TurnOrderIcon>();	
+	}
+
+	// Use this for initialization
+	void Start () {
+
 	}
 	
 	// Update is called once per frame
@@ -51,10 +53,13 @@ public class UI : MonoBehaviour {
 		UpdateTurnOrder();
 	
 	}
+	public void SkipClick () {
+		MouseInput.instance.Skip();
+	}
 
-	public void UpdateButtons (List<Ability> abilities) {
+	public void UpdateButtons (List<Ability> abilities, Unit unit) {
 
-		Debug.Log("updating buttons, "+abilities.Count+" (amount)");
+		//Debug.Log("updating buttons, "+abilities.Count+" (amount)");
 
 		actionButtons.ForEach(Destroy);
 		actionButtons.Clear();
@@ -66,6 +71,8 @@ public class UI : MonoBehaviour {
 			btn.transform.localScale = Vector3.one;
 			btn.transform.rotation = actionBar.rotation;
 			txt.text = ability.name;
+			btn.GetComponent<ActionButton>().ability = ability;
+			btn.GetComponent<ActionButton>().user = unit;
 			actionButtons.Add(btn);
 		}
 		
@@ -83,6 +90,7 @@ public class UI : MonoBehaviour {
 
 		foreach (HealthBar healthBar in healthBars) {
 			healthBar.bar.fillAmount = healthBar.unit.health/healthBar.unit.maxHealth;
+			healthBar.guardText.text = (healthBar.unit.guardPercent*100)+"%";
 			Vector2 viewportPoint;// = Camera.main.WorldToScreenPoint(healthBar.unit.transform.position);
 			RectTransform rectTransform = healthBar.canvasObject.GetComponent<RectTransform>();
 			//viewportPoint.x -= (canvas.sizeDelta.x * canvas.pivot.x);
@@ -93,10 +101,13 @@ public class UI : MonoBehaviour {
 		}
 		
 	}
-	public void UpdateTurnOrder (List<Actor> units) {
+	public void UpdateTurnOrder (List<Actor> actors) {
 		//int maxLength = 6;
 		int o = 0;
-		foreach (Unit u in units) {
+		foreach (Actor a in actors) {
+			// TODO :: maybe is bad, but perhaps show some actors as visible in turn order without control
+			if (a.GetType() != typeof(Unit)) continue;
+			Unit u = a as Unit;
 
 			// TODO :: All this is crap
 			bool found = false;
@@ -104,6 +115,7 @@ public class UI : MonoBehaviour {
 
 				if (icon.unit == u) {
 					icon.turn = o;
+					icon.icon.SetSiblingIndex(actors.Count-o);
 					icon.Update();
 					found = true;
 				}
@@ -112,6 +124,7 @@ public class UI : MonoBehaviour {
 				GameObject iconObj = (GameObject) Instantiate(turnOrderPrefab);
 				TurnOrderIcon reqIcon = new TurnOrderIcon(turnOrderParent, iconObj.GetComponent<RectTransform>(), u);
 				reqIcon.icon.SetParent(turnOrderParent, false);
+				reqIcon.icon.SetSiblingIndex(actors.Count-o);
 				turnOrderIcons.Add(reqIcon);
 				reqIcon.turn = o;
 				reqIcon.Update();
@@ -164,6 +177,64 @@ public class UI : MonoBehaviour {
 
 		return temp;
 	}
+
+	/*
+	void DrawWeights (float[,] wts) {
+		Vector3 offset = new Vector3(-0.5f,.5f,-0.5f);
+		for (int x = 0; x < wts.GetLength(0); x++) {
+			for (int y = 0; y < wts.GetLength(1); y++) {
+				float clerp = (int)(wts[x,y]/(range+1));
+
+				Debug.DrawLine(new Vector3(x+.1f,0,y+.1f)+offset,new Vector3(x+.1f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+				Debug.DrawLine(new Vector3(x+.9f,0,y+.1f)+offset,new Vector3(x+.9f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+				Debug.DrawLine(new Vector3(x+.1f,0,y+.1f)+offset,new Vector3(x+.9f,0,y+.1f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+				Debug.DrawLine(new Vector3(x+.1f,0,y+.9f)+offset,new Vector3(x+.9f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
+
+			}
+		}
+
+	}
+	void DrawRoute (List<Tile> route) {
+		//Debug.Log(route.Count);
+		if (route.Count > 0) {
+			//Debug.Log(wts[route[0].x,route[0].y]);
+		}
+		ClearRoute();
+		routeRenderer.SetVertexCount(route.Count);
+		for (int i = 0; i < route.Count; i++) {
+			//Debug.DrawLine(new Vector3(route[i].x, .5f, route[i].y), new Vector3(route[i+1].x, .5f, route[i+1].y), Color.blue);
+			routeRenderer.SetPosition(i, new Vector3(route[i].x, .6f, route[i].y));
+			//routeRenderer.SetPosition(i+1, new Vector3(route[i+1].x, .5f, route[i+1].y));
+		}
+	}
+	void DrawOutline (float[,] wts) {
+		ClearOutline();
+		for (int x = 0; x < wts.GetLength(0); x++) {
+			for (int y = 0; y < wts.GetLength(1); y++) {
+				if (wts[x,y] <= range) {
+					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
+					moveOutline.Add(obj);
+				}
+				else if (moves>1 && wts[x,y] <= range*2) {
+					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
+					obj.GetComponentInChildren<Renderer>().material.SetColor("_TintColor",Color.yellow);
+					moveOutline.Add(obj);					
+				}
+			}
+		}
+	}
+	void DrawMouseOver () {
+		mouseOverObject.transform.position = hoverOver.gameObject.transform.position + Vector3.up*0.7f;
+		mouseOverObject.SetActive(true);
+	}
+	void ClearRoute () {
+		routeRenderer.SetVertexCount(0);
+	}
+	void ClearOutline () {
+		moveOutline.ForEach(Destroy);
+	}
+	*/
+
 }
 
 public class HealthBar {
@@ -171,11 +242,13 @@ public class HealthBar {
 	public Unit unit;
 	public GameObject canvasObject;
 	public Image bar;
+	public Text guardText;
 
 	public HealthBar (Unit unit, GameObject uiObj) {
 		this.unit = unit;
 		canvasObject = uiObj;
 		bar = (Image) canvasObject.GetComponentInChildren<Image>();
+		guardText = (Text) canvasObject.GetComponentInChildren<Text>();
 	}
 
 }
@@ -208,7 +281,7 @@ public class TurnOrderIcon {
 	public void Update () {
 		delayText.text = unit.delay.ToString("0.00");
 		nameText.text = unit.name;
-
+		//icon.SetSiblingIndex(turn);
 		desiredOffset = new Vector2(0, turn*55+25);
 
 	}

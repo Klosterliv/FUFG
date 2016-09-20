@@ -40,6 +40,7 @@ GameObject:
   - 114: {fileID: 114000013756534056}
   - 114: {fileID: 114000010138867436}
   - 114: {fileID: 114000011007164442}
+  - 114: {fileID: 114000013025149330}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -135,6 +136,24 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: A1
+--- !u!114 &114000013025149330
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011428390350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64a5cb2b9814e794582f192ace8c7ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  user: {fileID: 0}
+  ability:
+    icon: {fileID: 0}
+    name: 
+    strength: 0
+    abilityType: 0
+    range: 5
 --- !u!114 &114000013756534056
 MonoBehaviour:
   m_ObjectHideFlags: 1

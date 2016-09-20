@@ -85,5 +85,20 @@ public class Grid : MonoBehaviour {
 
 		return w+to.weight;
 	}
+	public float GetDistance (Tile from, Tile to) {
+
+		float distance = Vector2.Distance(new Vector2(from.x,from.y), new Vector2(to.x, to.y));
+
+		return distance;
+	}
+	public float GetHeightDelta (Tile from, Tile to) {
+		
+		float dh = to.height-from.height;
+		return dh;
+
+	}
+
+
+
 
 }
