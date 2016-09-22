@@ -40,12 +40,12 @@ public class MouseInput : MonoBehaviour {
 	public GameObject moveOutlineObject;
 	public GameObject previewPrefab;
 	public GameObject mouseOverPrefab;
-	List<GameObject> moveOutline;
+	/*List<GameObject> moveOutline;
 	List<GameObject> guardZones;
 	List<Tile> previewTargets;
 	List<GameObject> previewObjects;
 	LineRenderer routeRenderer;
-	GameObject mouseOverObject;
+	GameObject mouseOverObject;*/
 	string tooltipText = "";
 	bool waitingForAnim = false;
 	Vector3 tempOrientation;
@@ -86,14 +86,14 @@ public class MouseInput : MonoBehaviour {
 
 		route = new List<Tile>();
 		//moveRoute = new List<Tile>();
-		moveOutline = new List<GameObject>();
-		previewTargets = new List<Tile>();
-		previewObjects = new List<GameObject>();
-		routeRenderer = GetComponent<LineRenderer>();
+		//moveOutline = new List<GameObject>();
+		//previewTargets = new List<Tile>();
+		//previewObjects = new List<GameObject>();
+		//routeRenderer = GetComponent<LineRenderer>();
 
-		mouseOverObject = (GameObject) Instantiate(mouseOverPrefab, transform.position, Quaternion.identity);
+		//mouseOverObject = (GameObject) Instantiate(mouseOverPrefab, transform.position, Quaternion.identity);
 		//mouseOverObject.GetComponentInChildren<Renderer>().material.SetColor("_TintColor",Color.green);
-		mouseOverObject.SetActive(false);
+		//mouseOverObject.SetActive(false);
 
 		tempOrientation = Vector3.zero;
 
@@ -168,6 +168,7 @@ public class MouseInput : MonoBehaviour {
 						mouseHit = true;
 						hoverUnit = hit.transform.GetComponentInParent<Unit>();
 						hoverOver = hoverUnit.tile;
+						UI.instance.outlines.DrawMouseOver(hoverOver);
 						if (hoverUnit != controlled) {
 
 						}
@@ -195,7 +196,8 @@ public class MouseInput : MonoBehaviour {
 							//FindPathing(controlled.tile,grid,range);
 							route = FindRoute(t,controlled.tile,grid);
 							//DrawOutline();
-							DrawMouseOver();
+							UI.instance.outlines.DrawMouseOver(hoverOver);
+							//DrawMouseOver();
 						}
 					}
 					break;
@@ -205,7 +207,7 @@ public class MouseInput : MonoBehaviour {
 			case MouseOverType.None:
 				{
 					hoverOver = null;
-					mouseOverObject.SetActive(false);
+					//mouseOverObject.SetActive(false);
 					mouseHit = false;
 					break;
 				}
@@ -218,7 +220,7 @@ public class MouseInput : MonoBehaviour {
 		else { 
 			mouseOver = MouseOverType.None;
 			hoverOver = null;
-			mouseOverObject.SetActive(false);
+			//mouseOverObject.SetActive(false);
 			mouseHit = false;
 		}
 
@@ -241,13 +243,21 @@ public class MouseInput : MonoBehaviour {
 					//	moves-=1;
 					//}
 
+					controlled.SetGuard(0.2f);
+
 					Mover.instance.AddMoving(new Moving(controlled, route, wts[route[0].x,route[0].y], controlled.rushAbility, hoverUnit));
 					moves-=2;
 
 					action = Action.Type.Rush;
 
-					if (wts[route[0].x,route[0].y] > range) moves-=2;
-					else moves-=1;
+					if (wts[route[0].x,route[0].y] > range) {
+						// Run
+						moves-=2;
+					}
+					else {
+						// Move
+						moves-=1;
+					}
 
 					waitingForAnim = true;
 					//targetUnit = hoverUnit;
@@ -257,8 +267,16 @@ public class MouseInput : MonoBehaviour {
 
 					action = Action.Type.Move;
 
-					if (wts[route[0].x,route[0].y] > range) moves-=2;
-					else moves-=1;
+					if (wts[route[0].x,route[0].y] > range) {
+						// Run
+						moves-=2;
+						controlled.SetGuard(0.2f);
+					}
+					else {
+						// Move
+						moves-=1;
+						controlled.SetGuard(0.5f);
+					}
 
 					waitingForAnim = true;
 
@@ -321,7 +339,7 @@ public class MouseInput : MonoBehaviour {
 		if (Mover.instance.busy) {
 			//MoveUnit();
 			//ClearRoute();
-			ClearOutline();
+			//ClearOutline();
 			return;
 		}
 		else if (waitingForAnim) {
@@ -338,21 +356,21 @@ public class MouseInput : MonoBehaviour {
 
 		if ((Input.GetMouseButton(1))) {
 			ctrl = Ctrl.Orient;
-			DrawPreviews();
-			ClearOutline();
-			ClearRoute();
+			//UI.instance.outlines.DrawPreviews(previewTargets);
+			//DrawPreviews();
+			//ClearOutline();
+			//ClearRoute();
 		}
 		else {
-			ClearPreviews();
+			//ClearPreviews();
 			if (ctrl == Ctrl.Orient) {
-				DrawOutline();
+				//DrawOutline();
 				controlled.OrientVisual(controlled.facing);
 				//Debug.Log(controlled.facing);
 				ctrl = Ctrl.Move;			
 			}
 
-		}
-			
+		}			
 
 		switch (ctrl) {
 		case Ctrl.Move:
@@ -362,7 +380,9 @@ public class MouseInput : MonoBehaviour {
 					Click();
 				}
 				//if (wts != null) DrawOutline();
-				DrawRoute();
+				UI.instance.outlines.DrawRoute(route);
+				UI.instance.outlines.DrawOutline(wts, range, controlled.tile.grid, moves);
+				//DrawRoute();
 			}
 			break;
 		case Ctrl.Orient:
@@ -372,8 +392,9 @@ public class MouseInput : MonoBehaviour {
 				//tooltipText = "Orient";
 				Vector3 orientation = GetOrientation();
 				controlled.OrientVisual(orientation);
-				previewTargets.Clear();
-				previewTargets.AddRange(controlled.GetGuardTargets(orientation));
+				//previewTargets.Clear();
+				UI.instance.outlines.DrawPreviews(controlled.GetGuardTargets(orientation));
+				//previewTargets.AddRange(controlled.GetGuardTargets(orientation));
 				//GetOrientation();
 				if (Input.GetMouseButtonDown(0)) {
 					Click();
@@ -389,7 +410,7 @@ public class MouseInput : MonoBehaviour {
 				}
 			}
 			//if (wts != null) DrawOutline();
-			DrawRoute();
+			UI.instance.outlines.DrawRoute(route);
 			//ClearOutline();
 			//ClearRoute();
 			break;
@@ -411,119 +432,6 @@ public class MouseInput : MonoBehaviour {
 		// next turn
 
 
-		//MouseRay();
-
-		/*
-		RaycastHit hit;
-		if (!unitMoving) {
-			if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 99999, mouseLayer)) {
-				if (hit.transform.parent.name == "Grid") {
-
-					Grid grid = hit.transform.parent.GetComponent<Grid>();
-					Tile t = grid.GetTile(hit.point);
-
-					if (hoverOver != t) {
-						hoverOver = t;
-						if (controlled != null) {
-							FindPathing(controlled.tile,t,grid,range);
-							route = FindRoute(t,controlled.tile,grid);
-							DrawOutline();
-							DrawMouseOver();
-						}
-					}
-					if (Input.GetMouseButtonDown(0)) {
-						Click();
-					}
-				}
-			}
-			else { 
-				hoverOver = null;
-				mouseOverObject.SetActive(false);
-			}
-
-			if (wts != null) DrawWeights();
-			DrawRoute();
-		}
-		else {
-			MoveUnit();
-			ClearRoute();
-			ClearOutline();
-		}
-*/
-	}
-		
-	/*void DrawWeights () {
-		Vector3 offset = new Vector3(-0.5f,.5f,-0.5f);
-		for (int x = 0; x < wts.GetLength(0); x++) {
-			for (int y = 0; y < wts.GetLength(1); y++) {
-				float clerp = (int)(wts[x,y]/(range+1));
-
-				Debug.DrawLine(new Vector3(x+.1f,0,y+.1f)+offset,new Vector3(x+.1f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
-				Debug.DrawLine(new Vector3(x+.9f,0,y+.1f)+offset,new Vector3(x+.9f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
-				Debug.DrawLine(new Vector3(x+.1f,0,y+.1f)+offset,new Vector3(x+.9f,0,y+.1f)+offset, Color.Lerp(Color.green,Color.red,clerp));
-				Debug.DrawLine(new Vector3(x+.1f,0,y+.9f)+offset,new Vector3(x+.9f,0,y+.9f)+offset, Color.Lerp(Color.green,Color.red,clerp));
-
-			}
-		}
-
-	}*/
-	void DrawRoute () {
-		//Debug.Log(route.Count);
-		if (route.Count > 0) {
-			//Debug.Log(wts[route[0].x,route[0].y]);
-		}
-		ClearRoute();
-		routeRenderer.SetVertexCount(route.Count);
-		for (int i = 0; i < route.Count; i++) {
-			//Debug.DrawLine(new Vector3(route[i].x, .5f, route[i].y), new Vector3(route[i+1].x, .5f, route[i+1].y), Color.blue);
-			routeRenderer.SetPosition(i, new Vector3(route[i].x, .6f, route[i].y));
-			//routeRenderer.SetPosition(i+1, new Vector3(route[i+1].x, .5f, route[i+1].y));
-		}
-	}
-	void DrawOutline () {
-		ClearOutline();
-		for (int x = 0; x < wts.GetLength(0); x++) {
-			for (int y = 0; y < wts.GetLength(1); y++) {
-				//TODO : ultraplaceholder
-				if (controlled.tile.grid.grid[x,y].effects.Count > 0) {
-					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
-					moveOutline.Add(obj);
-					obj.GetComponentInChildren<Renderer>().material.SetColor("_TintColor",Color.red);
-				}
-				else if (wts[x,y] <= range) {
-					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
-					moveOutline.Add(obj);
-					if (moves == 1) obj.GetComponentInChildren<Renderer>().material.SetColor("_TintColor",Color.yellow);
-				}
-				else if (moves>1 && wts[x,y] <= range*2) {
-					GameObject obj = (GameObject) Instantiate(moveOutlineObject, new Vector3(x,0.6f,y), Quaternion.identity);
-					obj.GetComponentInChildren<Renderer>().material.SetColor("_TintColor",Color.yellow);
-					moveOutline.Add(obj);					
-				}
-			}
-		}
-	}
-	void DrawMouseOver () {
-		mouseOverObject.transform.position = hoverOver.gameObject.transform.position + Vector3.up*0.6f;
-		mouseOverObject.SetActive(true);
-	}
-	void ClearRoute () {
-		routeRenderer.SetVertexCount(0);
-	}
-	void ClearOutline () {
-		moveOutline.ForEach(Destroy);
-		moveOutline.Clear();
-	}
-	void ClearPreviews() {
-		previewObjects.ForEach(Destroy);
-		previewObjects.Clear();
-	}
-	void DrawPreviews() {
-		ClearPreviews();
-		foreach (Tile t in previewTargets) {
-			GameObject obj = (GameObject) Instantiate(previewPrefab, new Vector3(t.x,0.6f,t.y), Quaternion.identity);
-			previewObjects.Add(obj);
-		}
 	}
 
 	Tile FindClosestAdjacent(Tile tile) {
@@ -584,7 +492,8 @@ public class MouseInput : MonoBehaviour {
 		}
 		wts = weights;
 
-		DrawOutline();
+		UI.instance.outlines.DrawOutline(wts, range, controlled.tile.grid, moves);
+		//DrawOutline();
 			
 
 	}
@@ -635,58 +544,7 @@ public class MouseInput : MonoBehaviour {
 		return newRoute;
 
 	}
-	/*
-	void MoveUnit() {
-		Vector3 posFrom = controlled.gameObject.transform.position;
-		Vector3 posTo = route[moveOrder].gameObject.transform.position;
 
-		controlled.gameObject.transform.position = Vector3.Lerp(posFrom, posTo, moveT);
-		//controlled.Orient(new Vector3(route[route.Count-2].x-route[route.Count-1].x,0, route[route.Count-1].y-route[route.Count-2].y));
-		//controlled.Orient(new Vector3(route[moveOrder-1].x-route[moveOrder].x,0, route[moveOrder-1].y-route[moveOrder].y));
-		if (moveT > .8f) {			
-			if (moveOrder > 0) {
-				controlled.Orient(new Vector3(route[moveOrder-1].x-route[moveOrder].x,0, route[moveOrder-1].y-route[moveOrder].y));
-				moveOrder--;
-				moveT = 0;
-			}
-			else if (moveT >= 1) {
-				controlled.Orient(new Vector3(route[0].x-route[1].x, 0, route[0].y-route[1].y));
-				MoveComplete ();
-			}
-		}
-		moveT += (Time.deltaTime*animSpeed);
-
-	}*/
-	/*
-	void MoveComplete () {
-
-		ClearRoute();
-		ClearOutline();
-
-		controlled.Moved(wts[route[0].x,route[0].y], route[0]);
-		unitMoving = false;
-		hoverOver = null;
-		//TurnHandler.instance.TimeStep();
-
-		switch (action) {
-		case Action.Type.Rush:
-			controlled.Orient(new Vector3(targetUnit.tile.x-controlled.tile.x, 0, targetUnit.tile.y-controlled.tile.y));
-			targetUnit.Strike(controlled.tile, controlled.strength*1.2f, controlled.strength*0.5f);
-			moves-=1;
-			break;
-		}
-
-		if (moves > 0) {
-			Debug.Log("findagain");
-			FindPathing(controlled.tile,controlled.tile.grid,range);
-			ctrl = Ctrl.Orient;
-		}
-		else {
-			Skip();
-		}
-
-		
-	}*/
 	public void SetControlled(Unit unit) {
 		controlled = unit;
 		range = unit.moveSpeed;
@@ -758,7 +616,7 @@ public class MouseInput : MonoBehaviour {
 	}
 	void CommitAction() {
 
-		DrawOutline();		
+		//DrawOutline();		
 	}
 
 

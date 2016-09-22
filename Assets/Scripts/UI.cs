@@ -16,6 +16,7 @@ public class UI : MonoBehaviour {
 	public GameObject turnOrderPrefab;
 
 	public Camera uiCam;
+	public Outlines outlines;
 
 
 

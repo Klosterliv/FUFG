@@ -55,7 +55,13 @@ public class Mover : MonoBehaviour {
 				Debug.Log("push done");
 			}
 			else {
-				m.pushedTo = m.unit.tile.grid.GetTile(m.unit.tile.gameObject.transform.position+m.pushDir);
+				Tile next = m.unit.tile.grid.GetTile(m.unit.tile.gameObject.transform.position+m.pushDir);
+				if (!next.occupied)
+					m.pushedTo = next;
+				else {
+					PushComplete(m);
+					Debug.Log("pushed into "+next.occupier.name);
+				}
 			}
 		}
 		else {
@@ -69,7 +75,13 @@ public class Mover : MonoBehaviour {
 				if (m.moveOrder > 1) {
 					m.moveOrder--;
 					m.unit.Pushed(m.pushedTo);
-					m.pushedTo = m.unit.tile.grid.GetTile(m.unit.tile.gameObject.transform.position+m.pushDir);
+					Tile next = m.unit.tile.grid.GetTile(m.unit.tile.gameObject.transform.position+m.pushDir);
+					if (!next.occupied)
+						m.pushedTo = next;
+					else {
+						PushComplete(m);
+						Debug.Log("pushed into "+next.occupier.name);
+					}
 					m.moveT = 0;
 				}
 				else if (m.moveT >= 1) {

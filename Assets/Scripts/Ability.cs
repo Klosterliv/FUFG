@@ -15,6 +15,8 @@ public class Ability {
 	public float range = 5;
 	public float delay = 1;
 
+	public float strengthMultiplier = 1;
+
 	/*
 	 * viable target tags ..?
 	 * spawned effects
@@ -37,7 +39,7 @@ public class Ability {
 
 	}
 	public virtual void Use (Unit user, Unit target) {
-		target.Strike(user.tile, 1, 1);
+		target.Strike(user.tile, strength*(strengthMultiplier*user.strength), 1);
 		user.delay+=delay;
 		
 	}

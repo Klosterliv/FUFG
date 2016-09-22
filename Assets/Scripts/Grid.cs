@@ -31,8 +31,11 @@ public class Grid : MonoBehaviour {
 				grid[x, y] = new Tile(this, x, y);
 				grid[x, y].gameObject = newTileObject;
 
-				grid[x,y].weight = Random.Range(1,3);
-				grid[x,y].height = Random.Range(0,2);
+				grid[x,y].weight = Mathf.RoundToInt(Random.Range(1,4));
+				grid[x,y].height = Random.Range(0,3);
+
+				grid[x,y].gameObject.transform.localScale = new Vector3(1, (1*(grid[x,y].height*0.3f)+0.1f), 1);
+				grid[x,y].gameObject.GetComponent<Renderer>().material.color = new Color(0.1f*grid[x,y].weight+0.3f,0.6f,0.6f);
 
 			}			
 		}

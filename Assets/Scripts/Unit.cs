@@ -219,6 +219,14 @@ public class Unit : Actor
 			t.AddEffect(guardEffect);
 			guardEffect.targets.Add(t);
 		}
+
+		SetGuard(1);
+
+	}
+	public void SetGuard (float factor) {
+		guard = factor*maxGuard;
+		if (guard > maxGuard) guard = maxGuard;
+		UpdateGuard();
 	}
 
 }
